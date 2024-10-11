@@ -482,6 +482,7 @@ static pfmlib_pmu_t *pfmlib_pmus[]=
 	&arm_cortex_a15_support,
 	&arm_1176_support,
 	&arm_qcom_krait_support,
+	&arm_cortex_a710_support,
 	&arm_cortex_a510_support,
 	&arm_cortex_a76_support,
 	&arm_cortex_a72_support,
@@ -497,6 +498,7 @@ static pfmlib_pmu_t *pfmlib_pmus[]=
 	&arm_thunderx2_ccpi1_support,
 #endif
 #ifdef CONFIG_PFMLIB_ARCH_ARM64
+	&arm_cortex_a710_support,
 	&arm_cortex_a510_support,
   &arm_cortex_a76_support,
 	&arm_cortex_a72_support,

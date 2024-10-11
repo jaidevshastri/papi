@@ -30,6 +30,7 @@
 #include "pfmlib_priv.h"			/* library private */
 #include "pfmlib_arm_priv.h"
 
+#include "events/arm_cortex_a710_events.h"    /* A510 event tables */
 #include "events/arm_cortex_a510_events.h"    /* A510 event tables */
 #include "events/arm_cortex_a76_events.h"    /* A76 event tables */
 #include "events/arm_cortex_a72_events.h"    /* A72 event tables */
@@ -38,6 +39,22 @@
 #include "events/arm_xgene_events.h"         /* Applied Micro X-Gene tables */
 #include "events/arm_cavium_tx2_events.h"    	/* Marvell ThunderX2 tables */
 #include "events/arm_marvell_tx2_unc_events.h" 	/* Marvell ThunderX2 PMU tables */
+
+static int
+pfm_arm_detect_cortex_a710(void *this)
+{
+	int ret;
+
+	ret = pfm_arm_detect(this);
+	if (ret != PFM_SUCCESS)
+		return PFM_ERR_NOTSUPP;
+
+	if ((pfm_arm_cfg.implementer == 0x41) && /* ARM */
+        (pfm_arm_cfg.part == 0xd47)) { /* Cortex A710 */
+			return PFM_SUCCESS;
+	}
+	return PFM_ERR_NOTSUPP;
+}
 
 static int
 pfm_arm_detect_cortex_a510(void *this)
@@ -154,6 +171,31 @@ pfm_arm_detect_thunderx2(void *this)
 	}
 	return PFM_ERR_NOTSUPP;
 }
+
+/* ARM Cortex A710 support */
+pfmlib_pmu_t arm_cortex_a710_support={
+	.desc			= "ARM Cortex A710",
+	.name			= "arm_ac710",
+	.pmu			= PFM_PMU_ARM_CORTEX_A710,
+	.pme_count		= LIBPFM_ARRAY_SIZE(arm_cortex_a710_pe),
+	.type			= PFM_PMU_TYPE_CORE,
+	.pe			= arm_cortex_a710_pe,
+
+	.pmu_detect		= pfm_arm_detect_cortex_a710,
+	.max_encoding		= 1,
+	.num_cntrs		= 6,
+
+	.get_event_encoding[PFM_OS_NONE] = pfm_arm_get_encoding,
+	 PFMLIB_ENCODE_PERF(pfm_arm_get_perf_encoding),
+	.get_event_first	= pfm_arm_get_event_first,
+	.get_event_next		= pfm_arm_get_event_next,
+	.event_is_valid		= pfm_arm_event_is_valid,
+	.validate_table		= pfm_arm_validate_table,
+	.get_event_info		= pfm_arm_get_event_info,
+	.get_event_attr_info	= pfm_arm_get_event_attr_info,
+	 PFMLIB_VALID_PERF_PATTRS(pfm_arm_perf_validate_pattrs),
+	.get_event_nattrs	= pfm_arm_get_event_nattrs,
+};
 
 /* ARM Cortex A510 support */
 pfmlib_pmu_t arm_cortex_a510_support={
